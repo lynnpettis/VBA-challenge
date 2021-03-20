@@ -4,12 +4,11 @@ Sub SummarizeStockData()
     ' Formulas to be used in the module
     ' Compute change in value: ChangeInValue = FinalValue - InitialValue
     ' Compute percent change in value: PercentChange = (FinalValue - InitialValue) / InitialValue
+    '   This can be reduced to ChangeInValue / InitialValue
         
     For Each Worksheet In Worksheets
     
         'Initialize variables, do all even though it is not needed
-        Dim TotalStockVolume, PercentChange As Double
-        
         Ticker = " "
         InitialValue = 0
         FinalValue = 0
@@ -18,7 +17,6 @@ Sub SummarizeStockData()
         TotalStockVolume = 0
         InputRow = 2
         OutputRow = 1
-        Done = False
         LastRow = Worksheet.Cells(Rows.Count, 1).End(xlUp).Row
                 
         ' Initialize new column headers
@@ -27,6 +25,7 @@ Sub SummarizeStockData()
         Worksheet.Cells(OutputRow, 11).Value = "Percent Change"
         Worksheet.Cells(OutputRow, 12).Value = "Total Stock Volume"
         
+        ' For the Bonus Section
         ' Initialize section to hold Stocks with
         ' the greatest % increase, greatest % decrease,
         ' and greatest total volume on each sheet
@@ -45,6 +44,9 @@ Sub SummarizeStockData()
         ' This loop will process the data on each sheet in the workbook
         
         ' Prime Variables with first row of data
+        ' Capturing all the required data insures that
+        ' you have all the data should a given Stock Ticker be
+        ' a single row of data
         Ticker = Worksheet.Cells(InputRow, 1).Value
         InitialValue = Worksheet.Cells(InputRow, 3).Value
         FinalValue = Worksheet.Cells(InputRow, 6)
@@ -53,10 +55,11 @@ Sub SummarizeStockData()
         While InputRow <= LastRow
         
             If Ticker = Worksheet.Cells(InputRow + 1, 1) Then
-                ' Capture next row of data
+                ' Capture next requesit data from the next row of data
                 FinalValue = Worksheet.Cells(InputRow + 1, 6)
                 TotalStockVolume = TotalStockVolume + Worksheet.Cells(InputRow + 1, 7).Value
             Else
+                ' The value of Ticker is changing in the next row,
                 ' Calculate Values for current Stock
                 ChangeInValue = FinalValue - InitialValue
                 
@@ -72,26 +75,31 @@ Sub SummarizeStockData()
                 Worksheet.Cells(OutputRow, 11).Value = PercentChange
                 Worksheet.Cells(OutputRow, 12).Value = TotalStockVolume
                 
-                ' The following will allow for the capture of the Stocks
-                ' with the greatest % increase, greatest % decrease,
-                ' and the greatest total volume
+                ' This where we will capture the data for the Bonus
+                ' section.  This code will allow the maximum or minimum
+                ' values and the ticker value to "bubble up" to the top,
+                ' allowing for the capture of the first instance of the
+                ' Stocks with the greatest % increase, greatest % decrease,
+                ' and the greatest total volume.
                 
+                ' Greatest % Increase
                 If PercentChange > Worksheet.Cells(2, 17).Value Then
                     Worksheet.Cells(2, 16).Value = Ticker
                     Worksheet.Cells(2, 17).Value = PercentChange
                 End If
                 
+                ' Greatest % Decrease
                 If PercentChange < Worksheet.Cells(3, 17).Value Then
                     Worksheet.Cells(3, 16).Value = Ticker
                     Worksheet.Cells(3, 17).Value = PercentChange
                 End If
                 
+                ' Greatest Total Volume
                 If TotalStockVolume > Worksheet.Cells(4, 17).Value Then
                     Worksheet.Cells(4, 16).Value = Ticker
                     Worksheet.Cells(4, 17).Value = TotalStockVolume
                 End If
                
-                
                 ' Format the color of the Yearly Change column so the interior
                 ' is Green for a positive change and Red for a negative change,
                 ' and White for a 0 change
